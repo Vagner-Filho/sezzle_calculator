@@ -15,6 +15,14 @@ React + TypeScript SPA. All arithmetic results come from the backend REST API �
 ## API consumption
 - Consume the Go backend REST API defined in `specs/back.md`; JSON in/out.
 - Do not duplicate operation endpoints or assume response shapes not in the backend spec.
+- Base URL in dev: `http://localhost:8080`. Binary operations POST `{"a": number, "b": number}` to `/api/add`, `/api/subtract`, `/api/multiply`, `/api/divide`, `/api/pow`, `/api/percentage`; unary `/api/sqrt` takes `{"a": number}`. Success is `{"result": number}`; errors are `{"error":{"code":"...","message":"..."}}` (e.g. `422 division_by_zero`, `422 negative_sqrt`, `422 overflow`, `400 invalid_json`, `400 invalid_request`) and are surfaced via toast.
+- Readiness probe: `GET /health` → `{"status":"ok"}`; `GET /ping` → `{"message":"pong"}`.
 
 ## Acceptance criteria
-- Test runner TBD — verify against `front/package.json` once scaffolded; record exact commands here (`npm run ...`) when chosen.
+- Test runner: **Vitest** — record exact commands here (`npm run ...`) when chosen.
+- Exact commands (from `front/package.json`):
+  - `npm run dev` — start Vite dev server
+  - `npm run build` — TypeScript compile + Vite production build
+  - `npm run preview` — preview production build
+  - `npm run lint` — run Oxlint
+  - `npm test` — run Vitest tests
