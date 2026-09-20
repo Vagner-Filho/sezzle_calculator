@@ -4,6 +4,16 @@ A full-stack calculator application with a React + TypeScript frontend and a Go
 REST API backend. All arithmetic is performed by the backend; the UI only
 renders input and results.
 
+## Design decisions
+
+- The goal of the architecture at the root level is to showcase an AI workflow guided by SDD files.
+- Each project can then pick a structure independently and contain their own AGENTS.md (or other) to tend to their needs.
+- The folders front and back, self contained, allow the usage of parallel agents, speeding up the development.
+- Since the focus lies on clean design, maintainable code, and testable architecture, building the calculator with a single input field that takes longer forms of arithmetic operations (a + b - c, a / (b * c), ...) would drastically reduce the number of endpoints, which might not be good to demonstrate the virtues required.
+- With commonly seen architecture patterns for back and front parts, the reviewer may jump straight into code.
+- The code is modular, no file is too big nor too small and I chose to use comments where a function is not super simple or have some behavior not quite represented by its name. 
+- Endpoints pertinent to a microservice context, mentioned in the description, were added (/health and /ping) so that load balancers and orchestrators may interact with it.
+
 ## Architecture
 
 - **`front/`** — React single-page application built with Vite, TypeScript, and
@@ -142,13 +152,3 @@ Linting:
 $ cd back && go vet ./... && gofmt -l .
 $ cd front && npm run lint
 ```
-
-## Design decisions
-
-- The goal of the architecture at the root level is to showcase an AI workflow guided by SDD files.
-- Each project can then pick a structure independently and contain their own AGENTS.md (or other) to tend to their needs.
-- The folders front and back, self contained, allow the usage of parallel agents, speeding up the development.
-- Since the focus lies on clean design, maintainable code, and testable architecture, building the calculator with a single input field that takes longer forms of arithmetic operations (a + b - c, a / (b * c), ...) would drastically reduce the number of endpoints, which might not be good to demonstrate the virtues required.
-- With commonly seen architecture patterns for back and front parts, the reviewer may jump straight into code.
-- The code is modular, no file is too big nor too small and I chose to use comments where a function is not super simple or have some behavior not quite represented by its name. 
-- Endpoints pertinent to a microservice context, mentioned in the description, were added (/health and /ping) so that load balancers and orchestrators may interact with it.
