@@ -17,7 +17,8 @@ Run every command from `back/`:
 | Run (listens on `:8080`) | `go run ./cmd/server` |
 | Run on a custom port | `PORT=3000 go run ./cmd/server` |
 | Build | `go build ./...` |
-| Test | `go test ./...` |
+| Test | `go test ./... -coverprofile=cover.out` |
+| Test Coverage | `go tool cover -html=cover.out` |
 | Vet | `go vet ./...` |
 | Format check | `gofmt -l .` |
 

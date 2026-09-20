@@ -1,0 +1,20 @@
+# Git
+.git
+.gitignore
+
+# Frontend
+front/node_modules
+front/dist
+front/.oxlintrc.json
+
+# Backend
+back/cover.out
+
+# Specs and docs (not needed for build)
+specs
+*.md
+
+# IDE / OS
+.vscode
+.idea
+.DS_Store

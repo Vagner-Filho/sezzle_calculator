@@ -34,7 +34,7 @@ func run() error {
 
 	server := &http.Server{
 		Addr:              addr,
-		Handler:           api.NewHandler(),
+		Handler:           api.NewHandlerWithStatic(os.Getenv("STATIC_DIR")),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 

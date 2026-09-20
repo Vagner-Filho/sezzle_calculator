@@ -16,17 +16,14 @@ var (
 	ErrUndefined      = errors.New("operation is undefined")
 )
 
-// Add returns a + b.
 func Add(a, b float64) (float64, error) {
 	return finite(a + b)
 }
 
-// Subtract returns a - b.
 func Subtract(a, b float64) (float64, error) {
 	return finite(a - b)
 }
 
-// Multiply returns a * b.
 func Multiply(a, b float64) (float64, error) {
 	return finite(a * b)
 }

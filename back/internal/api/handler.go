@@ -8,6 +8,8 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"os"
+	"strings"
 
 	"calculator/back/internal/calc"
 )
@@ -43,6 +45,50 @@ type unaryOp func(a float64) (float64, error)
 
 // NewHandler returns the handler serving every calculator route.
 func NewHandler() http.Handler {
+	return NewHandlerWithStatic("")
+}
+
+// NewHandlerWithStatic returns the API handler and serves static files from
+// staticDir for all other requests. An empty staticDir is equivalent to
+// NewHandler and returns JSON 404 responses for unmatched paths.
+func NewHandlerWithStatic(staticDir string) http.Handler {
+	return withCORS(buildAPIMux(fallbackHandler(staticDir)))
+}
+
+// fallbackHandler returns a handler for unmatched paths. When staticDir is set,
+// it serves the SPA static files and falls back to index.html; unknown /api/
+// paths still return the JSON 404 response.
+func fallbackHandler(staticDir string) http.Handler {
+	if staticDir == "" {
+		return http.HandlerFunc(handleNotFound)
+	}
+
+	fs := http.FileServer(&spaFileSystem{root: http.Dir(staticDir)})
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/api/") {
+			handleNotFound(w, r)
+			return
+		}
+		fs.ServeHTTP(w, r)
+	})
+}
+
+// spaFileSystem falls back to index.html so client-side routing works.
+type spaFileSystem struct {
+	root http.FileSystem
+}
+
+func (s *spaFileSystem) Open(name string) (http.File, error) {
+	f, err := s.root.Open(name)
+	if err != nil && os.IsNotExist(err) {
+		return s.root.Open("/index.html")
+	}
+	return f, err
+}
+
+// buildAPIMux registers all calculator API routes and mounts the fallback
+// handler for every other path.
+func buildAPIMux(fallback http.Handler) http.Handler {
 	routes := []struct {
 		method  string
 		path    string
@@ -68,9 +114,9 @@ func NewHandler() http.Handler {
 			mux.HandleFunc(route.path, methodNotAllowed(route.method))
 		}
 	}
-	mux.HandleFunc("/", handleNotFound)
+	mux.Handle("/{path...}", fallback)
 
-	return withCORS(mux)
+	return mux
 }
 
 func handleHealth(w http.ResponseWriter, _ *http.Request) {

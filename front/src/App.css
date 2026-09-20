@@ -1,15 +1,21 @@
 :root {
-  --bg: #f5f7fa;
-  --surface: #ffffff;
+  --bg-start: #e0e5ec;
+  --bg-end: #c9d6e8;
+  --surface: rgba(255, 255, 255, 0.62);
+  --surface-solid: #f0f3f8;
   --primary: #3b82f6;
   --primary-hover: #2563eb;
   --danger: #ef4444;
   --danger-hover: #dc2626;
   --text: #1f2937;
-  --text-muted: #6b7280;
-  --border: #d1d5db;
-  --radius: 12px;
-  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --text-muted: #5b6470;
+  --border: rgba(255, 255, 255, 0.55);
+  --shadow-light: rgba(255, 255, 255, 0.72);
+  --shadow-dark: rgba(163, 177, 198, 0.55);
+  --radius: 18px;
+  --radius-sm: 12px;
+  --shadow-soft: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+  --shadow-inset: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
 }
 
 * {
@@ -19,10 +25,11 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg);
+  font-family: 'Ubuntu', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
   color: var(--text);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
 .app {
@@ -33,18 +40,23 @@ body {
 
 header {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
 }
 
 header h1 {
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 700;
+  color: var(--text);
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.55);
 }
 
 .calculator {
   background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-soft), 0 18px 40px rgba(120, 140, 170, 0.2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -52,17 +64,21 @@ header h1 {
 }
 
 .calculator-display {
-  background: var(--bg);
-  border-radius: var(--radius);
+  display: block;
+  background: var(--surface-solid);
+  border-radius: var(--radius-sm);
   padding: 1rem;
   text-align: right;
   font-size: 2rem;
   font-weight: 600;
-  min-height: 3.5rem;
+  min-height: 3.75rem;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   word-break: break-all;
+  box-shadow: var(--shadow-inset);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: var(--text);
 }
 
 .calculator-display .placeholder {
@@ -73,71 +89,117 @@ header h1 {
 .operations {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .op-btn {
-  background: #e5e7eb;
-  border: none;
-  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   padding: 0.75rem 0.5rem;
   font-size: 1.25rem;
   font-weight: 600;
+  color: var(--text);
   cursor: pointer;
-  transition: background 0.15s ease;
+  box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .op-btn:hover {
-  background: #d1d5db;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.op-btn:active {
+  transform: translateY(1px);
+  box-shadow: var(--shadow-inset);
 }
 
 .op-btn.active {
   background: var(--primary);
   color: #fff;
+  box-shadow: var(--shadow-inset);
 }
 
 .inputs {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.875rem;
+}
+
+.inputs > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .inputs label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-muted);
+  padding-left: 0.25rem;
+}
+
+.inputs label[aria-disabled='true'] {
+  opacity: 0.65;
 }
 
 .inputs input {
-  padding: 0.625rem 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: 1rem;
-  transition: border-color 0.15s ease;
+  color: var(--text);
+  box-shadow: var(--shadow-inset);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.inputs input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
 }
 
 .inputs input:focus {
   outline: none;
   border-color: var(--primary);
+  box-shadow: inset 3px 3px 6px rgba(163, 177, 198, 0.45), inset -3px -3px 6px rgba(255, 255, 255, 0.7), 0 0 0 3px rgba(59, 130, 246, 0.18);
+}
+
+.inputs input:disabled,
+.inputs input[aria-disabled='true'] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: rgba(235, 239, 245, 0.65);
+  border-style: dashed;
+  box-shadow: none;
+}
+
+.inputs input:disabled::placeholder,
+.inputs input[aria-disabled='true']::placeholder {
+  color: var(--text-muted);
+  opacity: 0.5;
 }
 
 .actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .actions button {
   flex: 1;
-  padding: 0.75rem;
+  padding: 0.875rem;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s ease;
+  box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.actions button:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: var(--shadow-inset);
 }
 
 .calc-btn {
@@ -150,8 +212,9 @@ header h1 {
 }
 
 .calc-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.65;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .clear-btn {
@@ -167,6 +230,7 @@ header h1 {
   color: var(--danger);
   font-size: 0.875rem;
   font-weight: 500;
+  padding: 0 0.25rem;
 }
 
 .toast {
@@ -174,11 +238,14 @@ header h1 {
   bottom: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
-  background: #1f2937;
+  background: rgba(31, 41, 55, 0.88);
   color: #fff;
   padding: 0.875rem 1.25rem;
-  border-radius: 8px;
-  box-shadow: var(--shadow);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -211,21 +278,27 @@ header h1 {
     padding: 1rem 0.75rem;
   }
 
+  header h1 {
+    font-size: 1.625rem;
+  }
+
   .calculator {
-    padding: 1rem;
+    padding: 1.25rem;
+    gap: 0.875rem;
   }
 
   .calculator-display {
     font-size: 1.5rem;
+    min-height: 3.25rem;
   }
 
   .operations {
     grid-template-columns: repeat(4, 1fr);
-    gap: 0.375rem;
+    gap: 0.5rem;
   }
 
   .op-btn {
-    font-size: 1rem;
+    font-size: 1.125rem;
     padding: 0.625rem 0.25rem;
   }
 }

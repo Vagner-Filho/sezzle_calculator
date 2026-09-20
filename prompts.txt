@@ -1,0 +1,96 @@
+Input tokens: 388.5K
+Output tokens: 79.4K
+
+Here are the prompts that I used:
+
+1º ########
+
+The calculator will use React with Typescript for the frontend and Go for the backend.
+
+The raw description has extra information for each part. Each part will be contained in a folder (front, back) and the development flow will be controlled via SDD files.
+
+The major file will be @AGENTS.md itself, holding global instructions and informations pertinent to both SDD files whose scope will be limited to the folder they point to.
+
+Raw description:
+
+calculator application with a React frontend and a backend microservice. The frontend should consume the backend API to perform basic and advanced arithmetic operations. Focus on clean design, maintainable code, and testable architecture.Requirements
+Functional
+Operations:
+Addition, Subtraction, Multiplication, Division
+Optional: Exponentiation, Square Root, Percentage
+Frontend (React):
+Intuitive UI for entering input and displaying results
+Input validation and error handling
+Responsive design (basic mobile support)
+Backend (REST API):
+Expose endpoints for calculator operations
+Validate input and handle edge cases (division by zero, invalid data)
+Return results in JSON format
+Non-Functional
+Clean, readable, and idiomatic code (frontend and backend)
+Unit tests covering key functionality for both layers
+Documentation: setup instructions, API usage, and design rationale
+Optional: Dockerfile for full-stack deployment
+
+########
+
+2º ########
+
+read @AGENTS.md again as I have changed the instructions it contains, then proceed to create the sdd files
+
+########
+
+3º ########
+
+edit the sdd files preserving some of the terminologies such as funcional requirement (FR), non functional requirements (NFR) provided in the raw description earlier. Change "quality bar" to "acceptance criteria"
+
+########
+
+4º ########
+
+Since the raw description mentions "backend microservice" lets add the endpoints GET /health and GET /ping to @specs/back.md and also make it explicit in the functional requirements section the need to handle errors and edge cases gracefully using appropriate status codes in the range 399 - 499.
+
+########
+
+5º (parallel) ########
+
+Implement the spec file @specs/back.md
+
+########
+
+6º (parallel) ########
+
+Implement the spec file @specs/front.md
+
+########
+
+7º ########
+
+implement @specs/front_UI.md
+
+########
+
+8º ########
+
+the file @front/README.md must follow the pattern and provide the same type of information as @back/README.md
+
+########
+
+9º ########
+
+Improve the testing coverage of @front/src/components/Calculator.tsx targeting the usage of the function handleCalculate and its effects
+
+########
+
+10º ########
+
+Write a Dockerfile at root to run both parts
+
+########
+
+
+11º ########
+
+now lets create a README file under root with setup instructions and API examples. Consult @back/README.md and @front/README.md
+
+########

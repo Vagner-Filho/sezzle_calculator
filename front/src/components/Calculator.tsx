@@ -11,7 +11,7 @@ const OPERATIONS: { label: string; value: Operation; needsTwoInputs: boolean }[]
   { label: '÷', value: 'divide', needsTwoInputs: true },
   { label: 'xʸ', value: 'pow', needsTwoInputs: true },
   { label: '√', value: 'sqrt', needsTwoInputs: false },
-  { label: '%', value: 'percentage', needsTwoInputs: false },
+  { label: '%', value: 'percentage', needsTwoInputs: true },
 ];
 
 /**
@@ -28,6 +28,7 @@ export function Calculator() {
   const [inputError, setInputError] = useState<string | null>(null);
 
   const currentOp = OPERATIONS.find((op) => op.value === selectedOp)!;
+  const bDisabled = !currentOp.needsTwoInputs;
 
   const handleCalculate = useCallback(async () => {
     setError(null);
@@ -40,7 +41,7 @@ export function Calculator() {
       return;
     }
 
-    if (currentOp.needsTwoInputs) {
+    if (!bDisabled) {
       const bError = selectedOp === 'divide' ? validateDivisor(b) : validateNumber(b);
       if (bError) {
         setInputError(bError);
@@ -52,7 +53,7 @@ export function Calculator() {
     try {
       const res = await calculate(selectedOp, {
         a: Number(a),
-        b: currentOp.needsTwoInputs ? Number(b) : undefined,
+        b: bDisabled ? undefined : Number(b),
       });
       setResult(String(res));
     } catch (err) {
@@ -60,7 +61,7 @@ export function Calculator() {
     } finally {
       setLoading(false);
     }
-  }, [a, b, selectedOp, currentOp]);
+  }, [a, b, selectedOp, bDisabled]);
 
   const clear = useCallback(() => {
     setA('');
@@ -72,19 +73,25 @@ export function Calculator() {
   }, []);
 
   return (
-    <div className="calculator">
-      <div className="calculator-display">
+    <section className="calculator" aria-label="Calculator">
+      <output
+        className="calculator-display"
+        aria-live="polite"
+        aria-label="Calculation result"
+        data-testid="result-output"
+      >
         {result !== null ? (
           <span className="result" data-testid="result">{result}</span>
         ) : (
           <span className="placeholder">Result</span>
         )}
-      </div>
+      </output>
 
-      <div className="operations">
+      <div className="operations" role="group" aria-label="Operations">
         {OPERATIONS.map((op) => (
           <button
             key={op.value}
+            type="button"
             className={`op-btn ${selectedOp === op.value ? 'active' : ''}`}
             onClick={() => {
               setSelectedOp(op.value);
@@ -93,6 +100,7 @@ export function Calculator() {
               setInputError(null);
             }}
             aria-pressed={selectedOp === op.value}
+            aria-label={op.label}
             data-testid={`op-${op.value}`}
           >
             {op.label}
@@ -101,51 +109,57 @@ export function Calculator() {
       </div>
 
       <div className="inputs">
-        <label>
-          <span>Value</span>
+        <div>
+          <label htmlFor="input-a">Value</label>
           <input
+            id="input-a"
             type="text"
             inputMode="decimal"
             value={a}
             onChange={(e) => setA(e.target.value)}
             placeholder="Enter number"
             aria-invalid={!!inputError}
+            aria-describedby={inputError ? 'input-error' : undefined}
             data-testid="input-a"
           />
-        </label>
+        </div>
 
-        {currentOp.needsTwoInputs && (
-          <label>
-            <span>{selectedOp === 'divide' ? 'Divisor' : 'Value 2'}</span>
-            <input
-              type="text"
-              inputMode="decimal"
-              value={b}
-              onChange={(e) => setB(e.target.value)}
-              placeholder="Enter number"
-              aria-invalid={!!inputError}
-              data-testid="input-b"
-            />
+        <div>
+          <label htmlFor="input-b" aria-disabled={bDisabled}>
+            {selectedOp === 'divide' ? 'Divisor' : 'Value 2'}
           </label>
-        )}
+          <input
+            id="input-b"
+            type="text"
+            inputMode="decimal"
+            value={b}
+            disabled={bDisabled}
+            aria-disabled={bDisabled}
+            onChange={(e) => setB(e.target.value)}
+            placeholder={bDisabled ? 'Not used' : 'Enter number'}
+            aria-invalid={!!inputError}
+            aria-describedby={inputError ? 'input-error' : undefined}
+            data-testid="input-b"
+          />
+        </div>
       </div>
 
       {inputError && (
-        <div className="input-error" role="alert" data-testid="input-error">
+        <div id="input-error" className="input-error" role="alert" data-testid="input-error">
           {inputError}
         </div>
       )}
 
       <div className="actions">
-        <button onClick={handleCalculate} disabled={loading} className="calc-btn" data-testid="calculate-btn">
+        <button type="button" onClick={handleCalculate} disabled={loading} className="calc-btn" data-testid="calculate-btn">
           {loading ? 'Calculating…' : 'Calculate'}
         </button>
-        <button onClick={clear} className="clear-btn" data-testid="clear-btn">
+        <button type="button" onClick={clear} className="clear-btn" data-testid="clear-btn">
           Clear
         </button>
       </div>
 
       {error && <Toast message={error} onClose={() => setError(null)} />}
-    </div>
+    </section>
   );
 }

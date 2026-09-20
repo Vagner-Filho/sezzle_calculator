@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -220,6 +222,72 @@ func TestCORS(t *testing.T) {
 
 		if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "*" {
 			t.Errorf("Access-Control-Allow-Origin = %q, want *", got)
+		}
+	})
+}
+
+func TestStaticFiles(t *testing.T) {
+	tmpDir := t.TempDir()
+	indexHTML := "<!doctype html><html><body>Calculator SPA</body></html>"
+	if err := os.WriteFile(filepath.Join(tmpDir, "index.html"), []byte(indexHTML), 0o644); err != nil {
+		t.Fatalf("writing index.html: %v", err)
+	}
+
+	handler := api.NewHandlerWithStatic(tmpDir)
+
+	t.Run("serves index.html at root", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("status = %d, want %d", rec.Code, http.StatusOK)
+		}
+		if got := rec.Body.String(); got != indexHTML {
+			t.Errorf("body = %q, want %q", got, indexHTML)
+		}
+	})
+
+	t.Run("falls back to index.html for unknown paths", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/some/route", nil)
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("status = %d, want %d", rec.Code, http.StatusOK)
+		}
+		if got := rec.Body.String(); got != indexHTML {
+			t.Errorf("body = %q, want %q", got, indexHTML)
+		}
+	})
+
+	t.Run("unknown api paths still return json 404", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/api/unknown", nil)
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusNotFound {
+			t.Fatalf("status = %d, want %d", rec.Code, http.StatusNotFound)
+		}
+		var got errorBody
+		decodeBody(t, rec, &got)
+		if got.Error.Code != "not_found" {
+			t.Errorf("error code = %q, want not_found", got.Error.Code)
+		}
+	})
+
+	t.Run("api routes still work", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "/api/add", strings.NewReader(`{"a":1,"b":2}`))
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("status = %d, want %d", rec.Code, http.StatusOK)
+		}
+		var got resultBody
+		decodeBody(t, rec, &got)
+		if got.Result != 3 {
+			t.Errorf("result = %v, want 3", got.Result)
 		}
 	})
 }

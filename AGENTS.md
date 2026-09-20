@@ -15,9 +15,10 @@ Calculator app: React + TypeScript frontend (`front/`) consuming a Go backend RE
 
 ## Quality bar
 - Unit tests for key functionality on both layers; frontend: input validation and error handling; backend: edge cases.
+- Test coverage for any automated test run.
 - Idiomatic code; responsive frontend (basic mobile support).
 - Documentation must cover setup, API usage, and design rationale.
-- Optional: Dockerfile for full-stack deployment.
+- Dockerfile (`Dockerfile`) for full-stack deployment: builds the React frontend and Go backend into one image; run with `docker build -t calculator . && docker run -p 8080:8080 calculator`.
 - Functions whose name may not clearly define what they do will need commenting.
 
 ## Conventions
